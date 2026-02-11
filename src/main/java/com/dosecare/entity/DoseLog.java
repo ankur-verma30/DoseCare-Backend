@@ -4,6 +4,8 @@ import com.dosecare.enums.DoseStatus;
 import com.dosecare.enums.NotificationChannel;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -35,18 +37,13 @@ public class DoseLog {
     @Enumerated(EnumType.STRING)
     private NotificationChannel responseSource;
 
+
+    @CreationTimestamp
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @PrePersist
-    void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
 
-    @PreUpdate
-    void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
 }

@@ -7,6 +7,7 @@ import com.dosecare.entity.User;
 import com.dosecare.repository.UserRepository;
 import com.dosecare.service.AuthService;
 import com.dosecare.utils.JwtUtil;
+import com.dosecare.utils.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -42,7 +43,16 @@ public class AuthServiceImpl implements AuthService {
         }
 
         AuthResponse authResponse=new AuthResponse();
-        authResponse.token=jwtUtil.generateToken(user.getEmail());
+        authResponse.token=jwtUtil.generateToken((
+                new UserPrincipal(
+                        user.getId(),
+                        user.getEmail(),
+                        user.getPasswordHashed(),
+                        user.getUserRole()
+                )
+        ));
         return authResponse;
     }
 }
+
+

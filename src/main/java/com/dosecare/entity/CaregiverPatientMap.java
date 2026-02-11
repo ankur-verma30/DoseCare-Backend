@@ -30,19 +30,11 @@ public class CaregiverPatientMap {
 
 
     @CreationTimestamp
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @PrePersist
-    void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
 
-    @PreUpdate
-    void preUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
 }

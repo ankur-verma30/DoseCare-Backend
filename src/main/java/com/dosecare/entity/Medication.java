@@ -35,21 +35,12 @@ public class Medication {
 
 
     @CreationTimestamp
+    @Column(updatable = false)
     private String createdAt;
 
 
     @UpdateTimestamp
     private String updatedAt;
 
-    @PrePersist
-    void onCreate() {
-        this.createdAt = java.time.LocalDateTime.now().toString();
-        this.updatedAt = java.time.LocalDateTime.now().toString();
-    }
-
-    @PreUpdate
-    void onUpdate() {
-        this.updatedAt = java.time.LocalDateTime.now().toString();
-    }
 
 }

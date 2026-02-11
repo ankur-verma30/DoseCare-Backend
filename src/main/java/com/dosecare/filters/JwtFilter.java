@@ -1,14 +1,16 @@
 package com.dosecare.filters;
 
 import com.dosecare.repository.UserRepository;
+import com.dosecare.service.CustomUserDetailsService;
 import com.dosecare.utils.JwtUtil;
+import com.dosecare.utils.UserPrincipal;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -22,7 +24,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
 
-    private final UserRepository userRepository;
+    private final CustomUserDetailsService customUserDetailsService;
 
 
     @Override
@@ -31,17 +33,22 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             String token = authorizationHeader.substring(7);
-            String email = jwtUtil.extractUsername(token);
+          if(jwtUtil.validateToken(token)){
+          String email=jwtUtil.extractClaims(token).getSubject();
 
-            // TODO: Validate token and set authentication
-            userRepository.findByEmail(email).ifPresent(
-                    user -> {
-                        UsernamePasswordAuthenticationToken authenticationToken =
-                                new UsernamePasswordAuthenticationToken(user,null, List.of(
-                                        new SimpleGrantedAuthority("ROLE_"+user.getUserRole())
-                                ));
-                        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                    });
+              UserPrincipal userPrincipal=(UserPrincipal) customUserDetailsService.loadUserByUsername(email);
+
+              UsernamePasswordAuthenticationToken authenticationToken =
+                      new UsernamePasswordAuthenticationToken(userPrincipal,null, userPrincipal.getAuthorities());
+              System.out.println("Authorities: " + authenticationToken.getAuthorities());
+
+
+
+              SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+              System.out.println("this is the jwtUtil.extractClaims(token): " + jwtUtil.extractClaims(token));
+
+
+          }
         }
         filterChain.doFilter(request, response);
     }
